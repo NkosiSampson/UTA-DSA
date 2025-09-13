@@ -1,0 +1,372 @@
+"""Assignment 1: Friend of a Friend
+
+Please complete these functions, to answer queries given a dataset of
+friendship relations, that meet the specifications of the handout
+and docstrings below.
+
+Notes:
+- you should create and test your own scenarios to fully test your functions,
+  including testing of "edge cases"
+"""
+
+
+"""
+************** READ THIS ***************
+************** READ THIS ***************
+************** READ THIS ***************
+************** READ THIS ***************
+************** READ THIS ***************
+
+If you worked in a group on this project, please type the EIDs of your groupmates below (do not include yourself).
+Leave it as TODO otherwise.
+Groupmate 1: TODO
+Groupmate 2: TODO
+"""
+
+def load_pairs(filename):
+    """
+    Args:
+        filename (str): name of input file
+
+    Returns:
+        List of pairs, where each pair is a Tuple of two strings
+
+    Notes:
+    - Each non-empty line in the input file contains two strings, that
+      are separated by one or more space characters.
+    - You should remove whitespace characters, and skip over empty input lines.
+    """
+    list_of_pairs = []
+    with open(filename, 'rt') as infile:
+        # ------------ BEGIN YOUR CODE ------------
+        for line in infile:
+            if line == "\n":
+                pass
+            else:
+                list_of_pairs.append(tuple(line.split()))
+
+    # ------------ END YOUR CODE ------------
+
+    return list_of_pairs
+
+
+
+#if __name__ == "__main__":
+    #filepath = "/Users/nkosisampson/PycharmProjects/UTA-DSA/friends-NkosiSampson/myfriends.txt"
+    #pairs = load_pairs(filepath)
+    #print(pairs)
+
+
+def make_friends_directory(pairs):
+    """Create a directory of persons, for looking up immediate friends
+
+    Args:
+        pairs (List[Tuple[str, str]]): list of pairs
+
+    Returns:
+        Dict[str, Set] where each key is a person, with value being the set of
+        related persons given in the input list of pairs
+
+    Notes:
+    - you should infer from the input that relationships are two-way:
+      if given a pair (x,y), then assume that y is a friend of x, and x is
+      a friend of y
+    - no own-relationships: ignore pairs of the form (x, x)
+    """
+    directory = dict()
+
+    # ------------ BEGIN YOUR CODE ------------
+    for duple in pairs:
+        for name in duple:
+            if name not in directory.keys() and name is duple[0]:
+                    myset = set()
+                    myset.add(duple[1])
+                    directory[name] = myset
+            elif name not in directory.keys() and name is duple[1]:
+                    myset = set()
+                    myset.add(duple[0])
+                    directory[name] = myset
+            elif name in directory.keys() and name is duple[0]:
+                        directory[name].add(duple[1])
+            elif name in directory.keys() and name is duple[1]:
+                        directory[name].add(duple[0])
+    print(directory)
+    return directory
+
+
+    # ------------ END YOUR CODE ------------
+#directory = make_friends_directory(pairs)
+
+
+def find_all_number_of_friends(my_dir):
+    """List every person in the directory by the number of friends each has
+
+    Returns a sorted (in decreasing order by number of friends) list
+    of 2-tuples, where each tuples has the person's name as the first element,
+    the number of friends as the second element.
+    """
+    friends_list = []
+
+# ------------ BEGIN YOUR CODE ------------
+    from operator import itemgetter
+    for name in my_dir.keys():
+            duple = []
+            duple.append(name)
+            numfriends = len(my_dir[name])
+            duple.append(numfriends)
+            friends_list.append(tuple(duple))
+            friends_list = sorted(friends_list, key = itemgetter(1), reverse = True)
+            friends_list = sorted(friends_list, key = itemgetter(0))
+
+
+# ------------ END YOUR CODE ------------
+    return friends_list
+    #print(friends_list)
+#find_all_number_of_friends(directory)
+
+
+def make_team_roster(person, my_dir):
+    """Returns str encoding of a person's team of friends of friends
+    Args:
+        person (str): the team leader's name
+        my_dir (Dict): dictionary of all relationships
+
+    Returns:
+        str of the form 'A_B_D_G' where the underscore '_' is the
+        separator character, and the first substring is the
+        team leader's name, i.e. A.  Subsequent unique substrings are
+        friends of A or friends of friends of A, in ASCII order
+        and excluding the team leader's name (i.e. A only appears
+        as the first substring)
+
+    Notes:
+    - Team is drawn from only within two circles of A -- friends of A, plus
+      their immediate friends only
+    """
+    assert person in my_dir
+    label = person
+
+    # ------------ BEGIN YOUR CODE ------------
+    list = []
+    for lvl1Friend in my_dir[person]:
+        if lvl1Friend not in list:
+            list.append(lvl1Friend)
+        for lvl2Friend in my_dir[lvl1Friend]:
+            if lvl2Friend not in list:
+                list.append(lvl2Friend)
+    list = sorted(list)
+    if person in list:
+        list.remove(person)
+        list.insert(0, person)
+    else:
+        list.insert(0, person)
+    label = '_'.join(list)
+    label = str(label)
+    print(label)
+
+    # ------------ END YOUR CODE ------------
+
+    return label
+#make_team_roster('CHEWBACCA', directory)
+
+
+def find_smallest_team(my_dir):
+    """Find team with smallest size, and return its roster label str
+    - if ties, return the team roster label that is first in ASCII order
+    """
+    smallest_teams = []
+
+    # ------------ BEGIN YOUR CODE
+
+    allteams = []
+    for teamleader in my_dir.keys():
+        list = []
+        for lvl1Friend in my_dir[teamleader]:
+            if lvl1Friend not in list:
+                list.append(lvl1Friend)
+            for lvl2Friend in my_dir[lvl1Friend]:
+                if lvl2Friend not in list:
+                    list.append(lvl2Friend)
+        list = sorted(list)
+        if teamleader in list:
+            list.remove(teamleader)
+            list.insert(0, teamleader)
+        else:
+            list.insert(0, teamleader)
+        teamsize = str(len(list))
+        list.insert(0, teamsize)
+        allteams.append(list)
+        allteams.sort()
+        teamstied = []
+        for i in allteams:
+            if i[0] == allteams[0][0]:
+                teamstied.append(i)
+        teamstied.sort()
+        teamsmallest = []
+        for team in teamstied:
+            teamsmallest.append(team[1:len(team) + 1])
+        smallest_teams = []
+    for team in teamsmallest:
+        team = '_'.join(team)
+        smallest_teams.append(team)
+
+    # ------------ END YOUR CODE
+
+    return smallest_teams[0] if smallest_teams else ""
+
+#print(find_smallest_team(directory))
+
+
+
+
+
+
+
+
+
+"""Friends iterator class to return pairs of friends"""
+#
+# The code for the Friends class below contains a small number of bugs:
+# Please find and correct them so that the class meets the specifications
+# described in the handout and docstring
+#
+
+from typing import Tuple, Set, Dict, Iterator
+
+
+class Friends(Iterator):
+    """Make an iterator to return one unique relationship at a time from friends_dir
+
+    Args:
+        friends_dir: dictionary of persons and their friends that was
+           constructed by make_friends_directory()
+
+    Returns:
+        Iterator type, yielding one pair (as a tuple) at a time in ASCII order
+
+    Notes:
+    - Return each tuple in ASCII order:
+        ('a', 'b') before ('a','c') before ('b', 'c') etc
+    - Return only unique pairs: i.e. if returned (x,y), then do not return (y,x)
+    - Read about iterator/generator type in Python Standard Library docs
+      https://docs.python.org/3/library/stdtypes.html#typeiter
+
+    Hint:
+        You should practice using your visual debugger (PyCharm) here to
+        step through the code line by line, set breakpoints, and watch
+        the values of local variables and attributes change.
+    """
+
+    # ------------ DEBUG CODE BELOW ------------
+
+    def __init__(self, friends_dir: Dict[str, Set]):
+
+        self.dir = friends_dir
+
+        if friends_dir:
+            # initially, `persons` is list of all keys;
+            # and `friends` is list of the first person's friends
+            self.persons = sorted(friends_dir.keys())
+            self.friends = sorted(friends_dir[self.persons[0]])
+
+        else:
+            # handle edge case when input is an empty directory
+            self.person = []
+
+    def __iter__(self) -> Iterator:
+
+        return self
+
+    def __next__(self) -> Tuple[str, str]:
+
+        if not self.persons:  # cannot iterate when already empty
+            raise StopIteration
+        #print(self.friends)
+        while not self.friends:
+
+            # try to move on to next person in `persons` list
+            self.persons.pop(0)
+            #print(self.persons)
+            if not self.persons:  # stop iterating since there is no next person
+                raise StopIteration
+
+            # set `friends` to be list of friends of next person
+            self.friends = sorted([s for s in self.dir[self.persons[0]]
+                                   if s > self.persons[0]])
+            #print(self.friends)
+
+        # return the next friendship pair as a tuple
+        front = self.friends[0] #added line
+        print(self.persons[0], front) #changed self.friends.pop(0) to front
+        return (self.persons[0], self.friends.pop(0))
+
+
+
+    # ------------ END DEBUG ------------
+
+
+
+if __name__ == '__main__':
+    # To run and examine your function calls
+
+    print('\n1. run load_pairs')
+    my_pairs = load_pairs('../../../../HW1/myfriends.txt')
+    print(my_pairs)
+
+    print('\n2. run make_friends_directory')
+    my_dir = make_friends_directory(my_pairs)
+    print(my_dir)
+
+    print('\n3. run find_all_number_of_friends')
+    print(find_all_number_of_friends(my_dir))
+
+    print('\n4. run make_team_roster')
+    my_person = 'DARTHVADER'   # test with this person as team leader
+    team_roster = make_team_roster(my_person, my_dir)
+    print(team_roster)
+
+    print('\n5. run find_smallest_team')
+    print(find_smallest_team(my_dir))
+
+    print('\n6. run Friends iterator')
+    friends_iterator = Friends(my_dir)
+    for num, pair in enumerate(friends_iterator):
+        print(num, pair)
+        if num == 10:
+            break
+    # since index 0 we read 11 elements
+    print(len(list(friends_iterator)) + num + 1)
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+
+simple_friends = [('CHEWBACCA', 2), ('HAN', 2), ('LEIA', 1), ('LUKE', 1)]
+simple_dir = {'CHEWBACCA': {'HAN', 'LUKE'}, 'HAN': {'CHEWBACCA', 'LEIA'},
+                'LUKE': {'CHEWBACCA'}, 'LEIA': {'HAN'}}
+
+simple_person = 'HAN'
+simple_roster = 'HAN_CHEWBACCA_LEIA_LUKE'
+
+simple_first = ('CHEWBACCA', 'HAN')
+
+
+simple_team = 'LEIA_CHEWBACCA_HAN'
+
+simple_iter_len = 3
+
+def test_Friends_length_simple():
+    """Test that the iterator returns correct number of elements"""
+
+    comment = "did not iterate over correct number of elements"
+
+    myFriends = Friends(simple_dir)
+    assert len(list(myFriends)) == simple_iter_len, comment
+
+
+
+

@@ -15,7 +15,6 @@ def make_friends_directory(pairs):
     - no own-relationships: ignore pairs of the form (x, x)
     """
 
-
 directory = dict()
 list = [['Tom', 'Jerry'], ['Tim', 'Bo'], ['Tom', 'Bo']]
 for duple in list:

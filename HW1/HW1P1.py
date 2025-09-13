@@ -9,7 +9,6 @@ Notes:
   including testing of "edge cases"
 """
 
-
 """
 ************** READ THIS ***************
 ************** READ THIS ***************
@@ -37,24 +36,19 @@ def load_pairs(filename):
       are separated by one or more space characters.
     - You should remove whitespace characters, and skip over empty input lines.
     """
-    list_of_pairs = []
-    with open(filename, 'rt') as infile:
-        # ------------ BEGIN YOUR CODE ------------
-        with open("friends-NkosiSampson/myfriends.txt", "rt") as infile:
-            for line in infile:
-                if line == "\n":
-                    pass
-                else:
-                    list_of_pairs.append((line.split()))
-        # ------------ END YOUR CODE ------------
-    return list_of_pairs
-#print(load_pairs("friends-NkosiSampson/myfriends.txt"))
-directory = dict()
-
 
 # ------------ BEGIN YOUR CODE ------------
 
-
+    list_of_pairs = []
+    with open("friends-NkosiSampson/myfriends.txt", "rt") as infile:
+        for line in infile:
+            if line == "\n":
+                pass
+            else:
+                list_of_pairs.append(tuple((line.split()))) #converted to tuple
+    return list_of_pairs
+print(load_pairs("friends-NkosiSampson/myfriends.txt"))
+directory = dict()
 
 # ------------ END YOUR CODE ------------
 
